@@ -39,7 +39,7 @@ This project sets up a LAMP (Linux, Apache, MySQL, PHP) stack using Docker and D
    Use the following command to build the images and start the Docker containers:
 
    ```bash
-   docker-compose up --build
+   docker-compose up --build -d
    ```
 
 4. **Access the application**:
