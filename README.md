@@ -21,7 +21,7 @@ This project sets up a LAMP (Linux, Apache, MySQL, PHP) stack using Docker and D
 1. **Clone the repository** to your local machine:
 
    ```bash
-   git clone https://github.com/your_username/docker-lamp-stack.git
+   git clone https://github.com/sevaghi/docker-lamp-stack.git
    cd docker-lamp-stack
    ```
 
