@@ -1,9 +1,6 @@
-version: '3.8'
-
 services:
   www:
     build: ./apache
-    container_name: apache_webserver
     restart: always
     ports:
       - "8080:80"
@@ -11,25 +8,25 @@ services:
       - ./public_html:/var/www/html:ro
       - ./logs/apache:/var/log/apache2
     depends_on:
-      bbdd:
+      ddbb:
         condition: service_healthy
     environment:
-      - APACHE_RUN_USER: "www-data"
-      - APACHE_RUN_GROUP: "www-data"
+      APACHE_RUN_USER: "www-data"
+      APACHE_RUN_GROUP: "www-data"
     networks:
       - frontend
+      - backend
 
-  bbdd:
-    build: ./mysql
-    container_naime: mysql_bbdd
+  ddbb:
+    image: mysql:9.2.0
     restart: on-failure
     environment:
-      - MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      - MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      - MYSQL_USER: "${MYSQL_USER}"
-      - MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
       - ./logs/mysql:/var/log/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -40,25 +37,28 @@ services:
       - backend
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin_service
+    image: phpmyadmin/phpmyadmin:latest
     restart: unless-stopped
     depends_on:
-      bbdd:
+      ddbb:
         condition: service_healthy
-      environment:
-        PMA_HOST: "mysql"
-        MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      ports:
-        - "8081:80"
-      networks:
-        - frontend
+    environment:
+      PMA_HOST: "ddbb"
+      PMA_USER: "${PMA_USER}"
+      PMA_PASSWORD: "${PMA_PASSWORD}"
+    ports:
+      - "8081:80"
+    networks:
+      - frontend
+      - backend
 
-  volumes:
-    mysql_data:
+volumes:
+  mysql-data:
+    driver: local
 
-  networks:
-    frontend:
-      driver: bridge
-    backend:
-      driver: bridge
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
